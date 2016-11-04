@@ -4819,6 +4819,18 @@ VixToolsInitiateFileTransferToGuest(VixCommandRequestHeader *requestMsg)  // IN
       goto abort;
    }
 
+#if !defined(_WIN32)
+   /* 
+    * On Linux File_GetPathName will return "" for the root directory
+    * to handle this free the dir name that was returned and allocate a new one with "/"
+    */
+   if (strlen(dirName) == 0)
+   {
+      free(dirName);
+      dirName = Util_SafeStrdup("/");
+   }
+#endif      
+
    if (!File_IsDirectory(dirName)) {
       err = VIX_E_FILE_NAME_INVALID;
       goto abort;
